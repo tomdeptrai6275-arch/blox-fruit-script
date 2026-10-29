@@ -1,0 +1,194 @@
+Settings = Settings or {}
+
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local HttpService = game:GetService("HttpService")
+local RunService = game:GetService("RunService")
+local TweenService = game:GetService("TweenService")
+
+local Plr = Players.LocalPlayer
+
+-- Hệ thống dịch thuật (Translator)
+if Settings.Translator == true then
+    pcall(function()
+        _G.RedzTranslator = HttpService:JSONDecode(game:HttpGet("https://githubusercontent.com"))
+    end)
+end
+
+local function JoinTeam()
+    local targetTeam = "Marines"
+    if Settings.JoinTeam == "Pirates" then
+        targetTeam = "Pirates"
+    end
+
+    if not Plr.Team or (Plr.Team.Name ~= "Marines" and Plr.Team.Name ~= "Pirates") then
+        pcall(function()
+            ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("CommF_"):InvokeServer("SetTeam", targetTeam)
+        end)
+    end
+end
+JoinTeam()
+
+hookfunction(require(game:GetService("ReplicatedStorage").Effect.Container.Death), function() end)
+hookfunction(require(game:GetService("ReplicatedStorage").Effect.Container.Respawn), function() end)
+
+if game.PlaceId == 2753915549 or game.PlaceId == 85211729168715 then
+    World1 = true
+elseif game.PlaceId == 4442272183 or game.PlaceId == 79091703265657 then
+    World2 = true
+elseif game.PlaceId == 7449423635 or game.PlaceId == 100117331123089 then
+    World3 = true
+end
+
+function MaterialMon()
+    if _G.SelectMaterial ~= "Radiactive Material" then
+        if _G.SelectMaterial ~= "Leather + Scrap Metal" then
+            if _G.SelectMaterial ~= "Magma Ore" then
+                if _G.SelectMaterial ~= "Fish Tail" then
+                    if _G.SelectMaterial == "Angel Wings" then
+                        MMon = "Royal Soldier"
+                        MPos = CFrame.new(-7759.45898, 5606.93652, -1862.70276, -0.866007447, 0, -0.500031412, 0, 1, 0, 0.500031412, 0, -0.866007447)
+                        SP = "SkyArea2"
+                    elseif _G.SelectMaterial == "Mystic Droplet" then
+                        MMon = "Water Fighter"
+                        MPos = CFrame.new(-3331.70459, 239.138336, -10553.3564, -0.29242146, 0, 0.95628953, 0, 1, 0, -0.95628953, 0, -0.29242146)
+                        SP = "ForgottenIsland"
+                    elseif _G.SelectMaterial == "Vampire Fang" then
+                        MMon = "Vampire"
+                        MPos = CFrame.new(-6132.39453, 9.00769424, -1466.16919, -0.927179813, 0, -0.374617696, 0, 1, 0, 0.374617696, 0, -0.927179813)
+                        SP = "Graveyard"
+                    elseif _G.SelectMaterial == "Gunpowder" then
+                        MMon = "Pistol Billionaire"
+                        MPos = CFrame.new(-185.693283, 84.7088699, 6103.62744, 0.90629667, 0, -0.422642082, 0, 1, 0, 0.422642082, 0, 0.90629667)
+                        SP = "Mansion"
+                    elseif _G.SelectMaterial ~= "Mini Tusk" then
+                        if _G.SelectMaterial == "Conjured Cocoa" then
+                            MMon = "Chocolate Bar Battler"
+                            MPos = CFrame.new(582.828674, 25.5824986, -12550.7041, -0.766061664, 0, -0.642767608, 0, 1, 0, 0.642767608, 0, -0.766061664)
+                            SP = "Chocolate"
+                        end
+                    else
+                        MMon = "Mythological Pirate"
+                        MPos = CFrame.new(-13456.0498, 469.433228, -7039.96436, 0, 0, 1, 0, 1, 0, -1, 0, 0)
+                        SP = "BigMansion"
+                    end
+                elseif game.PlaceId == 2753915549 then
+                    MMon = "Fishman Warrior"
+                    MPos = CFrame.new(60943.9023, 17.9492188, 1744.11133, 0.826706648, 0, -0.562633216, 0, 1, 0, 0.562633216, 0, 0.826706648)
+                    SP = "Underwater City"
+                    MMon = "Fishman Commando"
+                    MPos = CFrame.new(61760.8984, 18.0800781, 1460.11133, -0.632549644, 0, -0.774520278, 0, 1, 0, 0.774520278, 0, -0.632549644)
+                    SP = "Underwater City"
+                elseif game.PlaceId == 7449423635 then
+                    MMon = "Fishman Captain"
+                    MPos = CFrame.new(-10828.1064, 331.825989, -9049.14648, -0.0912091732, 0, 0.995831788, 0, 1, 0, -0.995831788, 0, -0.0912091732)
+                    SP = "PineappleTown"
+                end
+            elseif game.PlaceId == 2753915549 then
+                MMon = "Military Soldier"
+                MPos = CFrame.new(-5565.60156, 9.10001755, 8327.56934, -0.838688731, 0, -0.544611216, 0, 1, 0, 0.544611216, 0, -0.838688731)
+                SP = "Magma"
+                MMon = "Military Spy"
+                MPos = CFrame.new(-5806.70068, 78.5000458, 8904.46973, 0.707134247, 0, 0.707079291, 0, 1, 0, -0.707079291, 0, 0.707134247)
+                SP = "Magma"
+            elseif game.PlaceId == 4442272183 then
+                MMon = "Lava Pirate"
+                MPos = CFrame.new(-5158.77051, 14.4791956, -4654.2627, -0.848060489, 0, -0.529899538, 0, 1, 0, 0.529899538, 0, -0.848060489)
+                SP = "CircleIslandFire"
+            end
+        elseif game.PlaceId == 2753915549 then
+            MMon = "Pirate"
+            MPos = CFrame.new(-967.433105, 13.5999937, 4034.24707, -0.258864403, 0, -0.965913713, 0, 1, 0, 0.965913713, 0, -0.258864403)
+            SP = "Pirate"
+            MMon = "Brute"
+            MPos = CFrame.new(-1191.41235, 15.5999985, 4235.50928, 0.629286051, 0, -0.777173758, 0, 1, 0, 0.777173758, 0, 0.629286051)
+            SP = "Pirate"
+        elseif game.PlaceId ~= 4442272183 then
+            if game.PlaceId == 7449423635 then
+                MMon = "Pirate Millionaire"
+                MPos = CFrame.new(-118.809372, 55.4874573, 5649.17041, -0.965929747, 0, 0.258804798, 0, 1, 0, -0.258804798, 0, -0.965929747)
+                SP = "Default"
+            end
+        else
+            MMon = "Mercenary"
+            MPos = CFrame.new(-986.774475, 72.8755951, 1088.44653, -0.656062722, 0, 0.754706323, 0, 1, 0, -0.754706323, 0, -0.656062722)
+            SP = "DressTown"
+        end
+    else
+        MMon = "Factory Staff"
+        MPos = CFrame.new(-105.889565, 72.8076935, -670.247986, -0.965929747, 0, -0.258804798, 0, 1, 0, 0.258804798, 0, -0.965929747)
+        SP = "Bar"
+    end
+end
+
+function CheckQuest()
+    MyLevel = game:GetService("Players").LocalPlayer.Data.Level.Value
+    if World1 then
+        if MyLevel >= 1 and MyLevel <= 9 or SelectMonster == "Bandit" then
+            Mon = "Bandit"
+            LevelQuest = 1
+            NameQuest = "BanditQuest1"
+            NameMon = "Bandit"
+            CFrameQuest = CFrame.new(1059.37195, 15.4495068, 1550.4231, 0.939700544, -0, -0.341998369, -0, 1, -0, 0.341998369, -0, 0.939700544)
+            CFrameMon = CFrame.new(1045.962646484375, 27.00250816345215, 1560.8203125)
+        elseif (MyLevel < 10 or MyLevel > 14) and SelectMonster ~= "Monkey" then
+            if (MyLevel < 15 or MyLevel > 29) and SelectMonster ~= "Gorilla" then
+                if (MyLevel < 30 or MyLevel > 39) and SelectMonster ~= "Pirate" then
+                    if (MyLevel < 40 or MyLevel > 59) and SelectMonster ~= "Brute" then
+                        if MyLevel >= 60 and MyLevel <= 74 or SelectMonster == "Desert Bandit" then
+                            Mon = "Desert Bandit"
+                            LevelQuest = 1
+                            NameQuest = "DesertQuest"
+                            NameMon = "Desert Bandit"
+                            CFrameQuest = CFrame.new(894.488647, 5.14000702, 4392.43359, 0.819155693, -0, -0.573571265, -0, 1, -0, 0.573571265, -0, 0.819155693)
+                            CFrameMon = CFrame.new(924.7998046875, 6.44867467880249, 4481.5859375)
+                        elseif (MyLevel < 75 or MyLevel > 89) and SelectMonster ~= "Desert Officer" then
+                            if (MyLevel < 90 or MyLevel > 99) and SelectMonster ~= "Snow Bandit" then
+                                if MyLevel >= 100 and MyLevel <= 119 or SelectMonster == "Snowman" then
+                                    Mon = "Snowman"
+                                    LevelQuest = 2
+                                    NameQuest = "SnowQuest"
+                                    NameMon = "Snowman"
+                                    CFrameQuest = CFrame.new(1389.74451, 88.1519318, -1298.90796, -0.342042685, -0, 0.939684391, -0, 1, -0, -0.939684391, -0, -0.342042685)
+                                    CFrameMon = CFrame.new(1201.6412353515625, 144.57958984375, -1550.0670166015625)
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
+end
+
+-- ========================================================
+-- KHỞI TẠO REDZ LIBRARY V5 REMAKE CHÍNH THỨC
+-- ========================================================
+local vu32 = loadstring(game:HttpGet("https://githubusercontent.com"))()
+local v466 = vu32:MakeWindow({
+    Title = "     sikibydi hub    ",
+    SubTitle = " blox fruit",
+    SaveFolder = "Redz | redz lib v5.lua"
+})
+
+v466:AddMinimizeButton({
+    Button = { Image = "rbxassetid://10590477450", BackgroundTransparency = 0 },
+    Size = UDim2.new(0, 35, 0, 35),
+    Corner = { CornerRadius = UDim.new(0.25, 0) },
+})
+
+local v484 = v466:MakeTab({"Discord", "info"})
+local v485 = v466:MakeTab({"Farm", "home"})
+local v496 = v466:MakeTab({"Settings", "settings"})
+
+v484:AddDiscordInvite({
+    Name = "sikibydi | Community",
+    Description = "Join server to receive Update",
+    Logo = "rbxassetid://131723242350068",
+    Invite = "https://discord.gg"
+})
+
+_G.SelectWeapon = "Melee"
+local _ = v485:AddDropdown({
+    Name = "Select Tool",
+    Description = "Choose the tool you want to use",
