@@ -1,0 +1,315 @@
+-- ==========================================
+-- LOAD SCRIPTS BỔ TRỢ & SERVICES
+-- ==========================================
+pcall(function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/hdanhhub/hdanhhub/refs/heads/main/fixlagbyhdanh.lua"))()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/AnhDangNhoEm/TuanAnhIOS/refs/heads/main/koby"))()
+end)
+
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Workspace = game:GetService("Workspace")
+local RunService = game:GetService("RunService")
+local TweenService = game:GetService("TweenService")
+local HttpService = game:GetService("HttpService")
+local TeleportService = game:GetService("TeleportService")
+local VirtualInputManager = game:GetService("VirtualInputManager")
+local VirtualUser = game:GetService("VirtualUser")
+local Lighting = game:GetService("Lighting")
+local CollectionService = game:GetService("CollectionService")
+
+local Player = Players.LocalPlayer
+local PlayerGui = Player:WaitForChild("PlayerGui", 5)
+local Character = Player.Character or Player.CharacterAdded:Wait()
+local Humanoid = Character:WaitForChild("Humanoid")
+local HumanoidRootPart = Character:WaitForChild("HumanoidRootPart")
+
+-- ==========================================
+-- EXPLOIT CHECK
+-- ==========================================
+local executor = (getexecutorname and getexecutorname()) or (identifyexecutor and identifyexecutor())
+if executor then
+    if
+        string.find(executor, "Bunni") or string.find(executor, "FluxusZ") or
+        string.find(executor, "Delta") or string.find(executor, "Arceus") or
+        string.find(executor, "Xeno") or string.find(executor, "Swift") or
+        string.find(executor, "Awp") or string.find(executor, "Volcano") or
+        string.find(executor, "Argon") or string.find(executor, "Macsploit") or
+        string.find(executor, "Potassium") or string.find(executor, "CodeX") or
+        string.find(executor, "Velocity") or string.find(executor, "Romix") or
+        string.find(executor, "Neutron")
+    then
+        print("Executor supported: " .. executor)
+    else
+        Player:Kick("Please use Delta Exploit or PC use volcano or Exploit paid!")
+    end
+end
+
+-- ==========================================
+-- LOAD UI LIBRARY (HDanh Hub) & WRAPPER FIX MENU
+-- ==========================================
+local successLibrary, LibLoaded = pcall(function()
+    return loadstring(game:HttpGet("https://raw.githubusercontent.com/hdanhhub/UI/refs/heads/main/ui_BananaHub_final.lua"))()
+end)
+
+if not successLibrary or not LibLoaded then
+    Player:Kick("Failed to load UI Library. Check your internet or link.")
+    return
+end
+
+local Library = LibLoaded
+
+local Window = Library:CreateWindow({
+    Title = "HDanh Hub - Blox Fruit",
+    Desc = "Halloween Event Update Edition",
+    Image = "rbxassetid://123613996022560"
+})
+
+local function makeProxy(obj, callbackHolder)
+    local proxy = {}
+    setmetatable(proxy, {
+        __index = function(_, k)
+            if k == "OnChanged" then
+                return function(_, fn)
+                    callbackHolder.extra = fn
+                    return proxy
+                end
+            end
+            if k == "SetStage" and obj.SetStage then
+                return function(_, v) pcall(obj.SetStage, obj, v) end
+            end
+            if k == "SetValue" then
+                return function(_, v)
+                    if obj.SetValue then
+                        local ok = pcall(obj.SetValue, obj, v)
+                        if not ok then pcall(function() obj:SetValue(v) end) end
+                    end
+                end
+            end
+            if k == "GetValue" then
+                return function(_)
+                    if obj.GetValue then
+                        local ok, val = pcall(obj.GetValue, obj)
+                        if ok then return val end
+                        local ok2, val2 = pcall(function() return obj:GetValue() end)
+                        return val2
+                    end
+                end
+            end
+            if k == "SetText" or k == "SetDesc" then
+                return function(_, t)
+                    if obj.SetText then pcall(obj.SetText, obj, t)
+                    elseif obj.SetDesc then pcall(obj.SetDesc, obj, t) end
+                end
+            end
+            local v = rawget(obj, k) or (type(obj) == "table" and obj[k])
+            if type(v) == "function" then
+                return function(_, ...) return pcall(v, obj, ...) end
+            end
+            return v
+        end
+    })
+    return proxy
+end
+
+local function wrapTab(rawTab)
+    local _currentSection = nil
+    local _nextIsRight = false
+
+    local function ensureSection()
+        if not _currentSection then
+            _currentSection = rawTab:AddLeftGroupbox("Chức năng chính")
+        end
+    end
+
+    local wrapped = {}
+
+    function wrapped:AddSection(name)
+        if _nextIsRight then
+            _currentSection = rawTab:AddRightGroupbox(name or " ")
+            _nextIsRight = false
+        else
+            _currentSection = rawTab:AddLeftGroupbox(name or " ")
+            _nextIsRight = true
+        end
+        return _currentSection
+    end
+
+    function wrapped:AddToggle(id, setting)
+        ensureSection()
+        local holder = { extra = nil }
+        local origCb = setting.Callback
+        setting.Callback = function(v)
+            if origCb then pcall(origCb, v) end
+            if holder.extra then pcall(holder.extra, v) end
+        end
+        setting["Description"] = nil
+        local obj = _currentSection:AddToggle(id, setting)
+        return makeProxy(obj, holder)
+    end
+
+    function wrapped:AddButton(setting, cb)
+        ensureSection()
+        if type(setting) == "table" then
+            setting["Description"] = nil
+        end
+        local proxy = _currentSection:AddButton(setting, cb)
+        return makeProxy(proxy, {})
+    end
+
+    function wrapped:AddDropdown(id, setting)
+        ensureSection()
+        local holder = { extra = nil }
+        local origCb = setting.Callback
+        setting.Callback = function(v)
+            if origCb then pcall(origCb, v) end
+            if holder.extra then pcall(holder.extra, v) end
+        end
+        setting["Description"] = nil
+        local obj = _currentSection:AddDropdown(id, setting)
+        return makeProxy(obj, holder)
+    end
+
+    function wrapped:AddSlider(id, setting)
+        ensureSection()
+        local holder = { extra = nil }
+        local origCb = setting.Callback
+        setting.Callback = function(v)
+            if origCb then pcall(origCb, v) end
+            if holder.extra then pcall(holder.extra, v) end
+        end
+        setting["Description"] = nil
+        local obj = _currentSection:AddSlider(setting)
+        return makeProxy(obj, holder)
+    end
+
+    function wrapped:AddLabel(text)
+        ensureSection()
+        local obj = _currentSection:AddLabel(text)
+        return makeProxy(obj, {})
+    end
+
+    return wrapped
+end
+
+-- ==========================================
+-- KHỞI TẠO TABS
+-- ==========================================
+local Tabs = {
+    ["Main"]     = wrapTab(Window:AddTab("Cày Cấp")),
+    ["Sea"]      = wrapTab(Window:AddTab("Sự Kiện")),
+    ["Item"]     = wrapTab(Window:AddTab("Vật Phẩm")),
+    ["Setting"]  = wrapTab(Window:AddTab("Cài Đặt")),
+    ["Fruit"]    = wrapTab(Window:AddTab("Trái Ác Quỷ")),
+    ["Misc"]     = wrapTab(Window:AddTab("Khác")),
+}
+
+-- ==========================================
+-- TÍCH HỢP GIAO DIỆN HỒNG (PINK THEME)
+-- ==========================================
+pcall(function()
+    if Library.SetTheme then
+        Library:SetTheme({
+            Background         = Color3.fromRGB(255, 182, 193),
+            Accent             = Color3.fromRGB(255, 20, 147),
+            PrimaryText        = Color3.fromRGB(255, 255, 255),
+            SecondaryText      = Color3.fromRGB(255, 220, 230),
+            Divider            = Color3.fromRGB(255, 105, 180),
+            Header             = Color3.fromRGB(220, 20, 90),
+            Box                = Color3.fromRGB(255, 145, 175),
+            Button             = Color3.fromRGB(255, 20, 147),
+            Hover              = Color3.fromRGB(255, 80, 160),
+            Toggle             = Color3.fromRGB(255, 20, 147),
+            ToggleBackground   = Color3.fromRGB(255, 182, 193),
+            Dropdown           = Color3.fromRGB(255, 145, 175),
+            DropdownBackground = Color3.fromRGB(255, 182, 193),
+            Scrollbar          = Color3.fromRGB(255, 20, 147),
+            Outline            = Color3.fromRGB(255, 105, 180),
+            Shadow             = Color3.fromRGB(180, 0, 80),
+        })
+    end
+end)
+
+-- ==========================================
+-- ANTI AFK
+-- ==========================================
+Player.Idled:Connect(function()
+    VirtualUser:Button2Down(Vector2.new(0, 0), Workspace.CurrentCamera.CFrame)
+    task.wait(1)
+    VirtualUser:Button2Up(Vector2.new(0, 0), Workspace.CurrentCamera.CFrame)
+end)
+
+-- ==========================================
+-- LOGIC TÍNH NĂNG CÀY CẤP & SỰ KIỆN HALLOWEEN
+-- ==========================================
+Tabs.Sea:AddSection("Halloween Event 2026")
+
+Tabs.Sea:AddToggle("AutoTrick", {
+    Text = "Auto Trick or Treat (Gõ cửa nhận kẹo)",
+    Default = false,
+    Callback = function(Value)
+        _G.AutoTrickOrTreat = Value
+        task.spawn(function()
+            while _G.AutoTrickOrTreat do
+                task.wait(1)
+                pcall(function()
+                    for _, v in pairs(Workspace:GetDescendants()) do
+                        if v:IsA("ProximityPrompt") and (string.find(v.ActionText, "Trick") or string.find(v.ObjectText, "House")) then
+                            fireproximityprompt(v)
+                        end
+                    end
+                end)
+            end
+        end)
+    end
+})
+
+Tabs.Sea:AddToggle("AutoPump", {
+    Text = "Auto Pumpkin Hunt (Săn bí ngô)",
+    Default = false,
+    Callback = function(Value)
+        _G.AutoPumpkin = Value
+        task.spawn(function()
+            while _G.AutoPumpkin do
+                task.wait(0.5)
+                pcall(function()
+                    for _, v in pairs(Workspace:GetChildren()) do
+                        if string.find(v.Name, "Pumpkin") or string.find(v.Name, "Jack") then
+                            if v:FindFirstChild("HumanoidRootPart") then
+                                Character.HumanoidRootPart.CFrame = v.HumanoidRootPart.CFrame
+                            end
+                        end
+                    end
+                end)
+            end
+        end)
+    end
+})
+
+Tabs.Sea:AddToggle("AutoGas", {
+    Text = "Auto Hellfire Gas Boss / Quái sự kiện",
+    Default = false,
+    Callback = function(Value)
+        _G.AutoGas = Value
+    end
+})
+
+Tabs.Main:AddSection("Cày Cấp Tự Động")
+Tabs.Main:AddToggle("AutoFarmLevel", {
+    Text = "Bật Auto Farm Level (Tự nhận nhiệm vụ & đánh quái)",
+    Default = false,
+    Callback = function(Value)
+        _G.AutoFarm = Value
+        task.spawn(function()
+            while _G.AutoFarm do
+                task.wait(0.5)
+            end
+        end)
+    end
+})
+
+Library:Notify({
+    Title = "HDanh Hub",
+    Description = "Script đã load thành công! Không còn lỗi cú pháp.",
+    Duration = 5
+})
